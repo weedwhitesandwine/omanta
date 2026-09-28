@@ -10,7 +10,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QFont>
 #include <QGuiApplication>
+#include <QScreen>
 #include <QStandardPaths>
 #include <QStyleHints>
 
@@ -20,6 +22,9 @@ constexpr const char *kPortalService = "org.freedesktop.portal.Desktop";
 constexpr const char *kPortalPath = "/org/freedesktop/portal/desktop";
 constexpr const char *kPortalSettings = "org.freedesktop.portal.Settings";
 constexpr const char *kAppearance = "org.freedesktop.appearance";
+
+// The QML draws file names at 13px; that is the size body text is scaled from.
+constexpr qreal kDesignBodyPixels = 13.0;
 
 QDBusMessage readOne(const QString &key)
 {
@@ -91,6 +96,22 @@ void SystemTheme::setTextScale(qreal scale)
         return;
     m_textScale = scale;
     Q_EMIT textScaleChanged();
+}
+
+qreal SystemTheme::fontScale() const
+{
+    // The platform theme hands over the desktop font (Adwaita Sans 11 under
+    // GTK) in points; convert at the screen's logical DPI as Qt Quick does.
+    const QFont font = QGuiApplication::font();
+    qreal pixels = font.pixelSize() > 0 ? font.pixelSize() : 0;
+    if (pixels <= 0 && font.pointSizeF() > 0) {
+        const QScreen *screen = QGuiApplication::primaryScreen();
+        const qreal dpi = screen ? screen->logicalDotsPerInchY() : 96.0;
+        pixels = font.pointSizeF() * dpi / 72.0;
+    }
+    if (pixels <= 0)
+        pixels = kDesignBodyPixels;
+    return pixels / kDesignBodyPixels * m_textScale;
 }
 
 void SystemTheme::applyColorScheme(uint scheme)

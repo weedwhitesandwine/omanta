@@ -99,7 +99,7 @@ Dialog {
                             Layout.fillWidth: true
                             text: root.columnLabels[row.columnId] ?? row.columnId
                             color: row.locked ? Colors.textDim : Colors.text
-                            font.pixelSize: 13
+                            font.pixelSize: Colors.px(13)
                             elide: Text.ElideRight
                         }
 

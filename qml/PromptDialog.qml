@@ -45,7 +45,7 @@ Dialog {
             textFormat: Text.PlainText
             text: root.prompt
             color: Colors.text
-            font.pixelSize: 13
+            font.pixelSize: Colors.px(13)
         }
 
         TextField {

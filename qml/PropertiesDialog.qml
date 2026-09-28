@@ -125,7 +125,7 @@ Dialog {
                           ? properties.displayName
                           : qsTr("%1 items selected").arg(properties.itemCount)
                     color: Colors.text
-                    font.pixelSize: 15
+                    font.pixelSize: Colors.px(15)
                     font.bold: true
                     elide: Text.ElideMiddle
                 }
@@ -136,7 +136,7 @@ Dialog {
                     text: properties.itemCount === 1 ? properties.typeDescription : ""
                     visible: text !== ""
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                     elide: Text.ElideRight
                 }
             }
@@ -148,7 +148,7 @@ Dialog {
             visible: properties.errorMessage !== ""
             text: properties.errorMessage
             color: Colors.error
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
             wrapMode: Text.WordWrap
         }
 
@@ -296,29 +296,29 @@ Dialog {
                     rowSpacing: 4
 
                     Text { textFormat: Text.PlainText; text: ""; Layout.preferredWidth: 70 }
-                    Text { textFormat: Text.PlainText; text: qsTr("Read"); color: Colors.textDim; font.pixelSize: 12 }
-                    Text { textFormat: Text.PlainText; text: qsTr("Write"); color: Colors.textDim; font.pixelSize: 12 }
+                    Text { textFormat: Text.PlainText; text: qsTr("Read"); color: Colors.textDim; font.pixelSize: Colors.px(12) }
+                    Text { textFormat: Text.PlainText; text: qsTr("Write"); color: Colors.textDim; font.pixelSize: Colors.px(12) }
                     Text {
                         textFormat: Text.PlainText
                         text: properties.isDir ? qsTr("Enter") : qsTr("Execute")
                         color: Colors.textDim
-                        font.pixelSize: 12
+                        font.pixelSize: Colors.px(12)
                     }
 
                     // Written out rather than generated: a Repeater cannot emit
                     // four grid cells per model row without a wrapper Item,
                     // and the wrapper is what breaks the column alignment.
-                    Text { textFormat: Text.PlainText; text: qsTr("Owner"); color: Colors.text; font.pixelSize: 12 }
+                    Text { textFormat: Text.PlainText; text: qsTr("Owner"); color: Colors.text; font.pixelSize: Colors.px(12) }
                     PermissionBox { bit: 0o400 }
                     PermissionBox { bit: 0o200 }
                     PermissionBox { bit: 0o100 }
 
-                    Text { textFormat: Text.PlainText; text: qsTr("Group"); color: Colors.text; font.pixelSize: 12 }
+                    Text { textFormat: Text.PlainText; text: qsTr("Group"); color: Colors.text; font.pixelSize: Colors.px(12) }
                     PermissionBox { bit: 0o040 }
                     PermissionBox { bit: 0o020 }
                     PermissionBox { bit: 0o010 }
 
-                    Text { textFormat: Text.PlainText; text: qsTr("Others"); color: Colors.text; font.pixelSize: 12 }
+                    Text { textFormat: Text.PlainText; text: qsTr("Others"); color: Colors.text; font.pixelSize: Colors.px(12) }
                     PermissionBox { bit: 0o004 }
                     PermissionBox { bit: 0o002 }
                     PermissionBox { bit: 0o001 }
@@ -334,7 +334,7 @@ Dialog {
                                                      .arg(properties.modeOctal)
                         color: Colors.textDim
                         font.family: "monospace"
-                        font.pixelSize: 12
+                        font.pixelSize: Colors.px(12)
                     }
 
                     Item { Layout.fillWidth: true }
@@ -353,7 +353,7 @@ Dialog {
                     visible: !properties.canChangeMode && properties.itemCount === 1
                     text: qsTr("Only the owner of a file can change its permissions.")
                     color: Colors.textDim
-                    font.pixelSize: 11
+                    font.pixelSize: Colors.px(11)
                     wrapMode: Text.WordWrap
                 }
 
@@ -406,7 +406,7 @@ Dialog {
                                 text: modelData.name
                                       + (modelData.isDefault ? " — " + qsTr("default") : "")
                                 color: index === applicationList.currentIndex ? Colors.selectionText : Colors.text
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                             }
                         }
 
@@ -427,7 +427,7 @@ Dialog {
                     visible: applicationList.count === 0
                     text: qsTr("No application is registered for this type.")
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                 }
 
                 RowLayout {
@@ -481,7 +481,7 @@ Dialog {
             topPadding: 3
             text: propertyRow.label
             color: Colors.textDim
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
             horizontalAlignment: Text.AlignRight
         }
 
@@ -492,7 +492,7 @@ Dialog {
             bottomPadding: 3
             text: propertyRow.value
             color: Colors.text
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
             wrapMode: Text.WrapAnywhere
         }
     }

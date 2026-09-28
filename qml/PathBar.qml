@@ -120,7 +120,7 @@ FocusScope {
                         visible: index > 0
                         text: "/"
                         color: Colors.textDim
-                        font.pixelSize: 13
+                        font.pixelSize: Colors.px(13)
                         leftPadding: 2
                         rightPadding: 2
                     }
@@ -141,7 +141,7 @@ FocusScope {
                             // are; asking Platform again would re-walk the whole
                             // path once per crumb, on every re-evaluation.
                             color: index === crumbs.count - 1 ? Colors.text : Colors.textDim
-                            font.pixelSize: 13
+                            font.pixelSize: Colors.px(13)
                         }
 
                         MouseArea {
@@ -178,7 +178,7 @@ FocusScope {
             anchors.centerIn: parent
             text: "\u22ee"
             color: Colors.text
-            font.pixelSize: 14
+            font.pixelSize: Colors.px(14)
         }
 
         MouseArea {
@@ -196,7 +196,7 @@ FocusScope {
         anchors.fill: parent
         visible: root.editing
         color: Colors.text
-        font.pixelSize: 13
+        font.pixelSize: Colors.px(13)
         leftPadding: 10
         background: null
         selectByMouse: true

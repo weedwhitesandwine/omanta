@@ -42,7 +42,7 @@ Dialog {
         text: root.title
         textFormat: Text.PlainText
         color: Colors.text
-        font.pixelSize: 16
+        font.pixelSize: Colors.px(16)
         font.bold: true
         leftPadding: root.leftPadding
         rightPadding: root.rightPadding
@@ -139,7 +139,7 @@ Dialog {
                 Layout.fillWidth: true
                 text: label
                 color: Colors.text
-                font.pixelSize: 13
+                font.pixelSize: Colors.px(13)
                 elide: Text.ElideRight
             }
         }
@@ -150,7 +150,7 @@ Dialog {
         Layout.preferredWidth: root.controlWidth
         Layout.maximumWidth: root.controlWidth
         implicitHeight: 32
-        font.pixelSize: 13
+        font.pixelSize: Colors.px(13)
     }
 
     component PrefSwitch: Switch {
@@ -165,7 +165,7 @@ Dialog {
         width: parent.width
         textFormat: Text.PlainText
         color: Colors.text
-        font.pixelSize: 14
+        font.pixelSize: Colors.px(14)
         font.bold: true
         topPadding: 16
     }
@@ -174,7 +174,7 @@ Dialog {
         width: parent.width
         textFormat: Text.PlainText
         color: Colors.textDim
-        font.pixelSize: 12
+        font.pixelSize: Colors.px(12)
         wrapMode: Text.WordWrap
         bottomPadding: 4
     }
@@ -369,7 +369,7 @@ Dialog {
                         id: dateSimple
                         width: parent.width
                         text: qsTr("Simple")
-                        font.pixelSize: 13
+                        font.pixelSize: Colors.px(13)
                         leftPadding: 14
                         rightPadding: 14
                         topPadding: 10
@@ -383,7 +383,7 @@ Dialog {
                             y: parent.height - height - 4
                             text: qsTr("Examples: “Today, 12:33”, “3 days ago”")
                             color: Colors.textDim
-                            font.pixelSize: 11
+                            font.pixelSize: Colors.px(11)
                         }
                     }
 
@@ -391,7 +391,7 @@ Dialog {
                         id: dateDetailed
                         width: parent.width
                         text: qsTr("Detailed")
-                        font.pixelSize: 13
+                        font.pixelSize: Colors.px(13)
                         leftPadding: 14
                         rightPadding: 14
                         topPadding: 10
@@ -405,7 +405,7 @@ Dialog {
                             y: parent.height - height - 4
                             text: qsTr("Examples: “08/08/2026 12:33”, “05/08/2026 12:33”")
                             color: Colors.textDim
-                            font.pixelSize: 11
+                            font.pixelSize: Colors.px(11)
                         }
                     }
                 }
@@ -423,7 +423,7 @@ Dialog {
                     textFormat: Text.PlainText
                     text: Math.round(opacitySlider.value * 100) + "%"
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                 }
 
                 Slider {

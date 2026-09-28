@@ -153,7 +153,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 text: row.name
                 color: row.current ? Colors.selectionText : row.mountable ? Colors.textDim : Colors.text
-                font.pixelSize: 13
+                font.pixelSize: Colors.px(13)
                 elide: Text.ElideRight
             }
 
@@ -167,8 +167,7 @@ Rectangle {
                 visible: row.ejectable
                 text: "⏏"
                 color: ejectMouse.containsMouse ? Colors.accent : Colors.textDim
-                font.pixelSize: 12
-
+                font.pixelSize: Colors.px(12)
                 MouseArea {
                     id: ejectMouse
                     anchors.fill: parent
@@ -295,7 +294,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Operations complete")
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                 }
             }
 
@@ -319,7 +318,7 @@ Rectangle {
                         width: parent.width - 22
                         text: modelData.shortStatus
                         color: modelData.state === "running" ? Colors.text : Colors.textDim
-                        font.pixelSize: 12
+                        font.pixelSize: Colors.px(12)
                         elide: Text.ElideMiddle
                     }
                 }
@@ -370,7 +369,7 @@ Rectangle {
                     visible: FileOperations.operations.length === 0
                     text: qsTr("All operations complete")
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                 }
 
                 Repeater {
@@ -393,7 +392,7 @@ Rectangle {
                                       ? modelData.label + qsTr(" — waiting")
                                       : modelData.label
                                 color: Colors.text
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                                 elide: Text.ElideRight
                             }
 
@@ -404,8 +403,7 @@ Rectangle {
                                 text: "✕"
                                 color: cancelOneMouse.containsMouse
                                        ? Colors.text : Colors.textDim
-                                font.pixelSize: 12
-
+                                font.pixelSize: Colors.px(12)
                                 MouseArea {
                                     id: cancelOneMouse
                                     anchors.fill: parent
@@ -440,7 +438,7 @@ Rectangle {
                             width: parent.width
                             text: modelData.detail || ""
                             color: Colors.textDim
-                            font.pixelSize: 11
+                            font.pixelSize: Colors.px(11)
                             elide: Text.ElideMiddle
                         }
 
@@ -457,7 +455,7 @@ Rectangle {
                             width: parent.width
                             text: line
                             color: Colors.textDim
-                            font.pixelSize: 11
+                            font.pixelSize: Colors.px(11)
                             elide: Text.ElideRight
                         }
                     }

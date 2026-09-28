@@ -52,7 +52,7 @@ Dialog {
                   ? qsTr("“%1” already exists here.").arg(root.conflicting[0])
                   : qsTr("%1 items already exist here.").arg(root.conflicting.length)
             color: Colors.text
-            font.pixelSize: 14
+            font.pixelSize: Colors.px(14)
             wrapMode: Text.WordWrap
         }
 
@@ -63,7 +63,7 @@ Dialog {
             text: root.conflicting.slice(0, 6).join(", ")
                   + (root.conflicting.length > 6 ? "…" : "")
             color: Colors.textDim
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
             wrapMode: Text.WordWrap
         }
 
@@ -72,7 +72,7 @@ Dialog {
             width: parent.width
             text: qsTr("Replacing cannot be undone.")
             color: Colors.textDim
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
         }
     }
 }

@@ -37,7 +37,7 @@ Dialog {
             width: parent.width
             text: root.message
             color: Colors.text
-            font.pixelSize: 14
+            font.pixelSize: Colors.px(14)
             wrapMode: Text.WordWrap
         }
 
@@ -47,7 +47,7 @@ Dialog {
             visible: root.detail !== ""
             text: root.detail
             color: Colors.textDim
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
             wrapMode: Text.WordWrap
         }
     }

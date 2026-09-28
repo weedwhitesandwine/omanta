@@ -57,7 +57,7 @@ Dialog {
 
             width: parent.width
             color: Colors.text
-            font.pixelSize: 13
+            font.pixelSize: Colors.px(13)
             wrapMode: Text.WordWrap
         }
 

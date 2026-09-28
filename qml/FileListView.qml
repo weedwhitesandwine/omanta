@@ -105,7 +105,7 @@ Item {
                                 textFormat: Text.PlainText
                                 text: meta.label
                                 color: root.tab.sortKey === meta.sortKey ? Colors.text : Colors.textDim
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                                 elide: Text.ElideRight
                             }
 
@@ -114,7 +114,7 @@ Item {
                                 visible: root.tab.sortKey === meta.sortKey
                                 text: root.tab.sortDescending ? "▾" : "▴"
                                 color: Colors.accent
-                                font.pixelSize: 10
+                                font.pixelSize: Colors.px(10)
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                         }
@@ -238,7 +238,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: row.expanded ? "▾" : "▸"
                                     color: row.expanded ? Colors.accent : Colors.textDim
-                                    font.pixelSize: 10
+                                    font.pixelSize: Colors.px(10)
                                 }
                             }
 
@@ -279,7 +279,7 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: row.displayName
                                 color: root.tab.isSelected(row.name) ? Colors.selectionText : Colors.text
-                                font.pixelSize: 13
+                                font.pixelSize: Colors.px(13)
                                 elide: Text.ElideRight
                                 width: Math.max(0, Math.min(implicitWidth,
                                                 nameCell.width - root.iconSize - 8
@@ -300,7 +300,7 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                             text: root.cellText(modelData, row)
                             color: Colors.textDim
-                            font.pixelSize: 12
+                            font.pixelSize: Colors.px(12)
                             elide: Text.ElideRight
                         }
                     }

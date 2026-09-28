@@ -39,6 +39,11 @@ QtObject {
     // GTK theme icon. The colour rides the URL (minus its '#', which a URL
     // would read as a fragment), so theme switches and selection changes
     // re-render through ordinary bindings.
+    // Every fixed text size goes through here so it follows the desktop font.
+    function px(size) {
+        return Math.round(size * Theme.fontScale)
+    }
+
     function tint(iconSource, color) {
         return iconSource + "?c=" + String(color).substring(1);
     }

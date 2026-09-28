@@ -30,6 +30,9 @@ class SystemTheme : public QObject
 
     Q_PROPERTY(bool darkMode READ darkMode NOTIFY darkModeChanged)
     Q_PROPERTY(qreal textScale READ textScale NOTIFY textScaleChanged)
+    // What the QML's fixed pixel sizes are multiplied by so body text matches
+    // the desktop font, the way GTK apps size theirs. 1.0 = the sizes as drawn.
+    Q_PROPERTY(qreal fontScale READ fontScale NOTIFY textScaleChanged)
 
     Q_PROPERTY(bool hasThemeColors READ hasThemeColors NOTIFY paletteChanged)
     Q_PROPERTY(QColor windowColor READ windowColor NOTIFY paletteChanged)
@@ -48,6 +51,7 @@ public:
 
     bool darkMode() const { return m_darkMode; }
     qreal textScale() const { return m_textScale; }
+    qreal fontScale() const;
 
     bool hasThemeColors() const { return m_hasThemeColors; }
     QColor windowColor() const { return m_window; }

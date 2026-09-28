@@ -71,7 +71,7 @@ Dialog {
                         textFormat: Text.PlainText
                         text: modelData.name
                         color: Colors.text
-                        font.pixelSize: 14
+                        font.pixelSize: Colors.px(14)
                         font.bold: true
                         topPadding: 10
                         bottomPadding: 4
@@ -90,7 +90,7 @@ Dialog {
                                 width: 220
                                 text: modelData[0]
                                 color: Colors.accent
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                                 font.family: "monospace"
                             }
 
@@ -98,7 +98,7 @@ Dialog {
                                 textFormat: Text.PlainText
                                 text: modelData[1]
                                 color: Colors.textDim
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                             }
                         }
                     }

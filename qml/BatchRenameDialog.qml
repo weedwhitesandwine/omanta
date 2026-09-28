@@ -63,7 +63,7 @@ Dialog {
             textFormat: Text.PlainText
             text: qsTr("Rename %1 Files").arg(root.count)
             color: Colors.text
-            font.pixelSize: 15
+            font.pixelSize: Colors.px(15)
             font.bold: true
         }
 
@@ -150,7 +150,7 @@ Dialog {
                     textFormat: Text.PlainText
                     text: qsTr("Automatic Numbering Order")
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
@@ -197,7 +197,7 @@ Dialog {
                 textFormat: Text.PlainText
                 text: qsTr("Existing Text")
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
             }
             TextField {
                 id: findField
@@ -212,7 +212,7 @@ Dialog {
                 textFormat: Text.PlainText
                 text: qsTr("Replace With")
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
             }
             TextField {
                 id: replaceField
@@ -253,7 +253,7 @@ Dialog {
                         width: (parent.width - 40) / 2
                         text: parent.modelData.oldName
                         color: Colors.textDim
-                        font.pixelSize: 12
+                        font.pixelSize: Colors.px(12)
                         elide: Text.ElideMiddle
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -261,7 +261,7 @@ Dialog {
                         textFormat: Text.PlainText
                         text: "→"
                         color: Colors.textDim
-                        font.pixelSize: 12
+                        font.pixelSize: Colors.px(12)
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     Text {
@@ -269,7 +269,7 @@ Dialog {
                         width: (parent.width - 40) / 2
                         text: parent.modelData.newName
                         color: parent.modelData.conflict ? Colors.error : Colors.text
-                        font.pixelSize: 12
+                        font.pixelSize: Colors.px(12)
                         elide: Text.ElideMiddle
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -283,7 +283,7 @@ Dialog {
             visible: renamer.problem !== ""
             text: renamer.problem
             color: Colors.error
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
         }
     }
 }

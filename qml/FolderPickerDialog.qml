@@ -85,7 +85,7 @@ Dialog {
             width: parent.width
             text: root.prompt
             color: Colors.text
-            font.pixelSize: 13
+            font.pixelSize: Colors.px(13)
             elide: Text.ElideMiddle
         }
 
@@ -105,7 +105,7 @@ Dialog {
                 anchors.verticalCenter: parent.verticalCenter
                 text: picker.path
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
                 elide: Text.ElideMiddle
             }
         }
@@ -144,7 +144,7 @@ Dialog {
                     anchors.centerIn: parent
                     text: qsTr("No folders here")
                     color: Colors.textDim
-                    font.pixelSize: 12
+                    font.pixelSize: Colors.px(12)
                 }
 
                 delegate: Rectangle {
@@ -177,7 +177,7 @@ Dialog {
                         text: displayName
                         color: list.currentIndex === index ? Colors.selectionText
                                                            : Colors.text
-                        font.pixelSize: 13
+                        font.pixelSize: Colors.px(13)
                         elide: Text.ElideRight
                     }
 

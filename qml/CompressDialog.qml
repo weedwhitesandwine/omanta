@@ -93,7 +93,7 @@ Dialog {
             textFormat: Text.PlainText
             text: qsTr("Compress Files and Folders")
             color: Colors.text
-            font.pixelSize: 15
+            font.pixelSize: Colors.px(15)
             font.bold: true
         }
 
@@ -105,7 +105,7 @@ Dialog {
                 textFormat: Text.PlainText
                 text: qsTr("Archive Name")
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
             }
 
             Row {
@@ -126,7 +126,7 @@ Dialog {
                     id: extensionLabel
                     text: root.formats[root.formatIndex].extension
                     color: Colors.textDim
-                    font.pixelSize: 13
+                    font.pixelSize: Colors.px(13)
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -140,7 +140,7 @@ Dialog {
                 textFormat: Text.PlainText
                 text: qsTr("Compression Method")
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
             }
 
             // Radios rather than Nautilus's combo row: three options do not
@@ -162,7 +162,7 @@ Dialog {
                 width: parent.width
                 text: root.formats[root.formatIndex].note
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
                 wrapMode: Text.WordWrap
             }
         }
@@ -176,7 +176,7 @@ Dialog {
                 textFormat: Text.PlainText
                 text: qsTr("Password")
                 color: Colors.textDim
-                font.pixelSize: 12
+                font.pixelSize: Colors.px(12)
             }
 
             TextField {
@@ -195,7 +195,7 @@ Dialog {
             visible: root.problem !== ""
             text: root.problem
             color: Colors.error
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
         }
     }
 }

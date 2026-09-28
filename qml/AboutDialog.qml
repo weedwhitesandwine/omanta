@@ -33,7 +33,7 @@ Dialog {
             anchors.horizontalCenter: parent.horizontalCenter
             text: qsTr("Files")
             color: Colors.text
-            font.pixelSize: 20
+            font.pixelSize: Colors.px(20)
             font.bold: true
         }
 
@@ -42,7 +42,7 @@ Dialog {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "omanta " + Qt.application.version
             color: Colors.textDim
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
         }
 
         Text {
@@ -50,7 +50,7 @@ Dialog {
             anchors.horizontalCenter: parent.horizontalCenter
             text: qsTr("A native file manager for Omarchy.")
             color: Colors.textDim
-            font.pixelSize: 12
+            font.pixelSize: Colors.px(12)
         }
     }
 }

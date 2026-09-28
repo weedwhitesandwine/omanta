@@ -245,7 +245,7 @@ Window {
                         horizontalAlignment: Text.AlignHCenter
                         text: "Files"
                         color: Colors.text
-                        font.pixelSize: 14
+                        font.pixelSize: Colors.px(14)
                         font.bold: true
                     }
 
@@ -313,7 +313,7 @@ Window {
                             textFormat: Text.PlainText
                             text: "⌕"
                             color: Colors.textDim
-                            font.pixelSize: 15
+                            font.pixelSize: Colors.px(15)
                         }
 
                         TextField {
@@ -321,7 +321,7 @@ Window {
 
                             Layout.fillWidth: true
                             color: Colors.text
-                            font.pixelSize: 13
+                            font.pixelSize: Colors.px(13)
                             background: null
                             placeholderText: qsTr("Search current folder")
                             selectByMouse: true
@@ -343,7 +343,7 @@ Window {
                             visible: root.currentTab && root.currentTab.searching
                             text: qsTr("searching…")
                             color: Colors.accent
-                            font.pixelSize: 11
+                            font.pixelSize: Colors.px(11)
                         }
 
                         // File-name vs full-text, Nautilus's search filter
@@ -365,7 +365,7 @@ Window {
                                 anchors.centerIn: parent
                                 text: qsTr("Contents")
                                 color: root.searchContent ? Colors.selectionText : Colors.textDim
-                                font.pixelSize: 11
+                                font.pixelSize: Colors.px(11)
                             }
 
                             MouseArea {
@@ -403,7 +403,7 @@ Window {
                                 anchors.centerIn: parent
                                 text: qsTr("Filters")
                                 color: parent.filtersActive ? Colors.selectionText : Colors.textDim
-                                font.pixelSize: 11
+                                font.pixelSize: Colors.px(11)
                             }
 
                             MouseArea {
@@ -473,7 +473,7 @@ Window {
                                         textFormat: Text.PlainText
                                         text: qsTr("When")
                                         color: Colors.text
-                                        font.pixelSize: 12
+                                        font.pixelSize: Colors.px(12)
                                         font.bold: true
                                     }
 
@@ -502,7 +502,7 @@ Window {
                                         textFormat: Text.PlainText
                                         text: qsTr("What")
                                         color: Colors.text
-                                        font.pixelSize: 12
+                                        font.pixelSize: Colors.px(12)
                                         font.bold: true
                                     }
 
@@ -583,7 +583,7 @@ Window {
                             anchors.verticalCenter: parent.verticalCenter
                             text: tabTitle || Platform.baseName(tabPath) || "/"
                             color: index === stack.currentIndex ? Colors.text : Colors.textDim
-                            font.pixelSize: 12
+                            font.pixelSize: Colors.px(12)
                             elide: Text.ElideRight
                         }
 
@@ -600,8 +600,7 @@ Window {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "×"
                             color: closeMouse.containsMouse ? Colors.text : Colors.textDim
-                            font.pixelSize: 14
-
+                            font.pixelSize: Colors.px(14)
                             MouseArea {
                                 id: closeMouse
                                 anchors.fill: parent
@@ -771,7 +770,7 @@ Window {
                     Layout.maximumWidth: 420
                     Layout.preferredHeight: 30
                     color: Colors.text
-                    font.pixelSize: 13
+                    font.pixelSize: Colors.px(13)
                     placeholderText: qsTr("Server address")
                     selectByMouse: true
                     onAccepted: root.connectToServer()
@@ -809,7 +808,7 @@ Window {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: qsTr("Server Addresses")
                                 color: Colors.text
-                                font.pixelSize: 14
+                                font.pixelSize: Colors.px(14)
                                 font.bold: true
                             }
 
@@ -818,7 +817,7 @@ Window {
                                 width: 320
                                 text: qsTr("Server addresses are made up of a protocol prefix and an address. Examples:")
                                 color: Colors.textDim
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                                 wrapMode: Text.WordWrap
                             }
 
@@ -827,7 +826,7 @@ Window {
                                 width: 320
                                 text: "smb://gnome.org, ssh://192.168.0.1, ftp://[2001:db8::1]"
                                 color: Colors.text
-                                font.pixelSize: 12
+                                font.pixelSize: Colors.px(12)
                                 wrapMode: Text.WrapAnywhere
                             }
 
@@ -840,14 +839,14 @@ Window {
                                     textFormat: Text.PlainText
                                     text: qsTr("Available Protocols")
                                     color: Colors.text
-                                    font.pixelSize: 12
+                                    font.pixelSize: Colors.px(12)
                                     font.bold: true
                                 }
                                 Text {
                                     textFormat: Text.PlainText
                                     text: qsTr("Prefix")
                                     color: Colors.text
-                                    font.pixelSize: 12
+                                    font.pixelSize: Colors.px(12)
                                     font.bold: true
                                 }
 
@@ -858,7 +857,7 @@ Window {
                                         textFormat: Text.PlainText
                                         text: modelData.text
                                         color: modelData.dim ? Colors.textDim : Colors.text
-                                        font.pixelSize: 12
+                                        font.pixelSize: Colors.px(12)
                                     }
                                 }
                             }
@@ -899,7 +898,7 @@ Window {
                 color: !FileOperations.busy
                        && (FileOperations.lastError !== "" || root.flashText !== "")
                        ? Colors.error : Colors.textDim
-                font.pixelSize: 11
+                font.pixelSize: Colors.px(11)
             }
 
             Row {
@@ -923,8 +922,7 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Cancel")
                     color: cancelMouse.containsMouse ? Colors.text : Colors.accent
-                    font.pixelSize: 11
-
+                    font.pixelSize: Colors.px(11)
                     MouseArea {
                         id: cancelMouse
                         anchors.fill: parent
@@ -1521,7 +1519,7 @@ Window {
                     Layout.fillWidth: true
                     text: qsTr("Icon Size")
                     color: Colors.text
-                    font.pixelSize: 13
+                    font.pixelSize: Colors.px(13)
                 }
 
                 ToolbarButton {
