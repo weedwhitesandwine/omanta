@@ -66,9 +66,9 @@ FocusScope {
         anchors.left: parent.left
         anchors.leftMargin: 9
         anchors.verticalCenter: parent.verticalCenter
-        width: 14
-        height: 14
-        sourceSize: Qt.size(28, 28)
+        width: 18
+        height: 18
+        sourceSize: Qt.size(36, 36)
         visible: !root.editing
         source: Colors.tint("image://fileicon/" + root.placeIcon, Colors.text)
     }

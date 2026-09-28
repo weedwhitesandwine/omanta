@@ -12,7 +12,9 @@ Item {
 
     property alias currentIndex: view.currentIndex
     readonly property int iconSize: root.tab.zoom
-    readonly property int rowHeight: Math.max(Colors.rowHeight, iconSize + 12)
+    readonly property int rowHeight: Math.max(Colors.rowHeight, iconSize + 20)
+    // Nautilus draws list icons a size up from its zoom step; match that.
+    readonly property int drawnIconSize: Math.round(iconSize * 1.15)
 
     // Label, sort key and width per column id. Width 0 marks the flex column.
     readonly property var columnMeta: ({
@@ -114,7 +116,7 @@ Item {
                                 visible: root.tab.sortKey === meta.sortKey
                                 text: root.tab.sortDescending ? "▾" : "▴"
                                 color: Colors.accent
-                                font.pixelSize: Colors.px(10)
+                                font.pixelSize: Colors.px(16)
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                         }
@@ -238,7 +240,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: row.expanded ? "▾" : "▸"
                                     color: row.expanded ? Colors.accent : Colors.textDim
-                                    font.pixelSize: Colors.px(10)
+                                    font.pixelSize: Colors.px(26)
                                 }
                             }
 
@@ -258,16 +260,16 @@ Item {
                                         || Platform.isLocal(previewPath))
                                     && Thumbnails.canThumbnail(row.contentType, row.size)
 
-                                width: root.iconSize
-                                height: root.iconSize
+                                width: root.drawnIconSize
+                                height: root.drawnIconSize
                                 anchors.verticalCenter: parent.verticalCenter
                                 fillMode: Image.PreserveAspectFit
                                 source: wantThumbnail ? thumbnailSource
                                                       : Colors.fileIcon(row.iconSource,
                                                             root.tab.isSelected(row.name) ? Colors.selectionText
                                                           : row.isDir ? Colors.accent
-                                                          : Colors.textDim, root.iconSize)
-                                sourceSize: Qt.size(root.iconSize, root.iconSize)
+                                                          : Colors.textDim, root.drawnIconSize)
+                                sourceSize: Qt.size(root.drawnIconSize, root.drawnIconSize)
                                 asynchronous: true
                                 cache: true
                                 onStatusChanged: if (status === Image.Error && wantThumbnail)
@@ -282,7 +284,7 @@ Item {
                                 font.pixelSize: Colors.px(13)
                                 elide: Text.ElideRight
                                 width: Math.max(0, Math.min(implicitWidth,
-                                                nameCell.width - root.iconSize - 8
+                                                nameCell.width - root.drawnIconSize - 8
                                                 - (root.tab.treeActive ? row.depth * 18 + 22 : 0)))
                             }
                         }

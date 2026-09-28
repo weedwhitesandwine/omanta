@@ -72,6 +72,7 @@ Rectangle {
         clip: true
         model: places
         boundsBehavior: Flickable.StopAtBounds
+        spacing: 3
 
         // Nautilus draws no section headers — just a hairline between the
         // fixed places, the bookmarks and the devices. Same here.
@@ -113,7 +114,7 @@ Rectangle {
 
             width: list.width - 12
             x: 6
-            height: 30
+            height: 35
             radius: Colors.radius
             color: current ? Colors.selection
                  : rowDrop.containsDrag ? Colors.hover
@@ -140,7 +141,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 source: Colors.tint(row.iconSource,
                                     row.current ? Colors.selectionText : Colors.textDim)
-                sourceSize: Qt.size(16, 16)
+                sourceSize: Qt.size(20, 20)
                 opacity: row.mountable ? 0.6 : 1
             }
 

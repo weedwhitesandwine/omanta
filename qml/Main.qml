@@ -233,6 +233,7 @@ Window {
 
                     ToolbarButton {
                         symbol: "⌕"
+                        symbolSize: 20
                         tip: "Search (Ctrl+F)"
                         active: root.searchOpen
                         onTriggered: root.searchOpen ? root.closeSearch() : root.openSearch()
@@ -534,7 +535,7 @@ Window {
                 ToolbarButton {
                     id: viewOptionsButton
                     symbol: "▼"
-                    symbolSize: 12
+                    symbolSize: 9
                     tip: "View options"
                     onTriggered: viewOptionsMenu.popup(viewOptionsButton, 0, viewOptionsButton.height)
                 }

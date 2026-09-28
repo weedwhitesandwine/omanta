@@ -41,15 +41,15 @@ Item {
         color: root.active ? Colors.selectionText
              : root.enabled ? Colors.text : Colors.textDim
         opacity: root.enabled ? 1.0 : 0.4
-        font.pixelSize: root.symbolSize
+        font.pixelSize: Colors.px(Math.round(root.symbolSize * 1.3))
     }
 
     Image {
         anchors.centerIn: parent
         visible: root.glyph !== ""
-        width: 16
-        height: 16
-        sourceSize: Qt.size(32, 32)
+        width: 18
+        height: 18
+        sourceSize: Qt.size(36, 36)
         source: root.glyph === "" ? ""
               : Colors.tint("image://fileicon/" + root.glyph,
                             root.active ? Colors.selectionText
