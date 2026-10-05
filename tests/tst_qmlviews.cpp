@@ -16,6 +16,7 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QGuiApplication>
+#include <QPointer>
 #include <QProcess>
 #include <QQmlApplicationEngine>
 #include <QQmlComponent>
@@ -1052,7 +1053,7 @@ void TestQmlViews::pasteKeepsCopiedFilesOnClipboard()
     QVERIFY(!clipboard->isCutPath(cut));
 }
 
-// This fork's "Move to…" / "Copy to…": the picked folder feeds the same
+// "Move to…" / "Copy to…": the picked folder feeds the same
 // transfer flow as paste, clash check included.
 void TestQmlViews::moveAndCopyToPickedFolder()
 {
@@ -1461,6 +1462,9 @@ void TestQmlViews::tabCloseButtonClosesTab()
     QTRY_COMPARE(window->property("tabCount").toInt(), 2);
     QList<QQuickItem *> tabs;
     QTRY_COMPARE((tabs = tabDelegates(window->contentItem())).size(), 2);
+    // The strip's Row lays a new tab out a frame later; a click point taken
+    // before then can land on the other tab.
+    QTRY_VERIFY(tabs.at(0)->x() < tabs.at(1)->x());
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier,
                       centreOf(findItem(tabs.at(0), "text", QStringLiteral("×"))));
     QTRY_COMPARE(window->property("tabCount").toInt(), 1);
@@ -1471,20 +1475,15 @@ void TestQmlViews::tabCloseButtonClosesTab()
     QTest::keyClick(window, Qt::Key_T, Qt::ControlModifier);
     QTRY_COMPARE(window->property("tabCount").toInt(), 2);
     QTRY_COMPARE((tabs = tabDelegates(window->contentItem())).size(), 2);
-    // Guarded: if the wrong tab closes, the failure below must report it
-    // rather than read a deleted tab.
-    QPointer<QObject> second = window->property("currentTab").value<QObject *>();
-    // The strip's Row positions a new delegate on its next polish; until then
-    // the old tab can still sit in the new one's slot, and a point taken from
-    // it lands on the other tab once the layout settles.
     QTRY_VERIFY(tabs.at(0)->x() < tabs.at(1)->x());
+    const QPointer<QObject> second = window->property("currentTab").value<QObject *>();
     const QPoint label = tabs.at(0)->mapToScene(QPointF(20, tabs.at(0)->height() / 2)).toPoint();
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, label);
-    QTRY_VERIFY(window->property("currentTab").value<QObject *>() != second);
+    QTRY_VERIFY(window->property("currentTab").value<QObject *>() != second.data());
     QCOMPARE(window->property("tabCount").toInt(), 2);
     QTest::mouseClick(window, Qt::MiddleButton, Qt::NoModifier, label);
     QTRY_COMPARE(window->property("tabCount").toInt(), 1);
-    QVERIFY2(second, "the middle-click closed the second tab instead of the first");
+    QVERIFY(second);
     QCOMPARE(window->property("currentTab").value<QObject *>(), second.data());
 }
 
