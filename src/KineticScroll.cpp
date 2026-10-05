@@ -2,7 +2,6 @@
 
 #include <QQuickItem>
 #include <QQuickWindow>
-#include <QTimer>
 #include <QWheelEvent>
 
 #include <cmath>
@@ -16,12 +15,8 @@ constexpr quint64 kVelocityWindowMs = 100;
 constexpr quint64 kPauseBeforeLiftMs = 60;
 // Slower than this (px/s) is a placement, not a flick.
 constexpr qreal kMinimumVelocity = 150;
-// The fingers' speed alone glides noticeably shorter than GTK's kinetic
-// scrolling; this carries the release speed up to match (distance grows with
-// its square under Flickable's constant deceleration).
-constexpr qreal kGain = 1.6;
-// Flickable's default ceiling (2500 px/s) cuts a brisk swipe short.
-constexpr qreal kMaximumVelocity = 12000;
+// The glide ends once it has slowed below this (px/s).
+constexpr qreal kStopVelocity = 10;
 
 bool canScroll(QQuickItem *item, Qt::Orientations orientations)
 {
@@ -31,11 +26,27 @@ bool canScroll(QQuickItem *item, Qt::Orientations orientations)
             && item->property("contentWidth").toReal() > item->width());
 }
 
+// Flickable's scroll range along one axis, margins included.
+void range(QQuickItem *item, bool vertical, qreal &min, qreal &max)
+{
+    const char *origin = vertical ? "originY" : "originX";
+    const char *before = vertical ? "topMargin" : "leftMargin";
+    const char *after = vertical ? "bottomMargin" : "rightMargin";
+    const char *content = vertical ? "contentHeight" : "contentWidth";
+    const qreal extent = vertical ? item->height() : item->width();
+    min = item->property(origin).toReal() - item->property(before).toReal();
+    max = qMax(min, item->property(origin).toReal() + item->property(content).toReal()
+                        + item->property(after).toReal() - extent);
+}
+
 } // namespace
 
 KineticScroll::KineticScroll(QObject *parent)
     : QObject(parent)
 {
+    m_frame.setTimerType(Qt::PreciseTimer);
+    m_frame.setInterval(8);
+    connect(&m_frame, &QTimer::timeout, this, &KineticScroll::step);
 }
 
 QQuickItem *KineticScroll::flickableAt(QQuickWindow *window, const QPointF &position,
@@ -66,39 +77,73 @@ QQuickItem *KineticScroll::flickableAt(QQuickWindow *window, const QPointF &posi
 
 bool KineticScroll::eventFilter(QObject *watched, QEvent *event)
 {
-    // Qt Quick re-sends the event to items; the window sees each one once.
-    if (event->type() == QEvent::Wheel) {
-        if (auto *window = qobject_cast<QQuickWindow *>(watched))
-            handleWheel(window, static_cast<QWheelEvent *>(event));
+    // Qt Quick re-sends events on to items; the window sees each one once.
+    auto *window = qobject_cast<QQuickWindow *>(watched);
+    if (!window || m_reposting)
+        return QObject::eventFilter(watched, event);
+
+    switch (event->type()) {
+    case QEvent::Wheel:
+        if (handleWheel(window, static_cast<QWheelEvent *>(event)))
+            return true;
+        break;
+    case QEvent::MouseButtonPress:
+    case QEvent::TouchBegin:
+        stopGlide();
+        break;
+    default:
+        break;
     }
     return QObject::eventFilter(watched, event);
 }
 
-void KineticScroll::handleWheel(QQuickWindow *window, const QWheelEvent *event)
+bool KineticScroll::handleWheel(QQuickWindow *window, QWheelEvent *event)
 {
+    // A mouse wheel (no phase) or a "dumb" touchpad: stop any glide and leave
+    // the event alone. Wayland marks finger scrolls as system-synthesized.
+    if (event->phase() == Qt::NoScrollPhase || event->phase() == Qt::ScrollMomentum
+        || event->source() != Qt::MouseEventSynthesizedBySystem) {
+        stopGlide();
+        return false;
+    }
+
     switch (event->phase()) {
     case Qt::ScrollBegin:
         // Fingers back on the pad: catch the page, as GTK does.
+        stopGlide();
         m_samples.clear();
-        if (m_gliding)
-            QMetaObject::invokeMethod(m_gliding, "cancelFlick");
-        m_gliding = nullptr;
-        break;
-    case Qt::ScrollUpdate:
-        if (!event->pixelDelta().isNull())
-            m_samples.append({event->timestamp(), QPointF(event->pixelDelta())});
-        break;
+        m_remainder = {};
+        return false;
     case Qt::ScrollEnd:
-        glide(window, event->position(), event->timestamp());
+        startGlide(window, event->position(), event->timestamp());
         m_samples.clear();
-        break;
+        return false;
     default:
-        // A mouse wheel (no phase) or the platform's own momentum.
         break;
     }
+
+    if (event->pixelDelta().isNull())
+        return false;
+
+    // Scale as GTK does, carrying the rounding so slow scrolls keep pace.
+    const QPointF scaled = QPointF(event->pixelDelta()) * kTouchpadFactor + m_remainder;
+    const QPoint delta(qRound(scaled.x()), qRound(scaled.y()));
+    m_remainder = scaled - QPointF(delta);
+    m_samples.append({event->timestamp(), QPointF(delta)});
+    if (delta.isNull())
+        return true;
+
+    QWheelEvent faster(event->position(), event->globalPosition(), delta, event->angleDelta(),
+                       event->buttons(), event->modifiers(), event->phase(), event->inverted(),
+                       event->source(), event->pointingDevice());
+    faster.setTimestamp(event->timestamp());
+    m_reposting = true;
+    QCoreApplication::sendEvent(window, &faster);
+    m_reposting = false;
+    return true;
 }
 
-void KineticScroll::glide(QQuickWindow *window, const QPointF &position, quint64 endMs)
+void KineticScroll::startGlide(QQuickWindow *window, const QPointF &position, quint64 endMs)
 {
     if (m_samples.size() < 2 || endMs - m_samples.last().ms > kPauseBeforeLiftMs)
         return;
@@ -117,7 +162,8 @@ void KineticScroll::glide(QQuickWindow *window, const QPointF &position, quint64
     for (int i = first + 1; i < m_samples.size(); ++i)
         distance += m_samples.at(i).delta;
     const qreal seconds = qMax<quint64>(m_samples.last().ms - m_samples.at(first).ms, 8) / 1000.0;
-    QPointF velocity = distance / seconds * kGain;
+    // A positive delta scrolls back towards the start (content moves down).
+    const QPointF velocity = -distance / seconds;
     if (std::hypot(velocity.x(), velocity.y()) < kMinimumVelocity)
         return;
 
@@ -130,18 +176,63 @@ void KineticScroll::glide(QQuickWindow *window, const QPointF &position, quint64
     if (!flickable)
         return;
 
-    velocity.setX(qBound(-kMaximumVelocity, velocity.x(), kMaximumVelocity));
-    velocity.setY(qBound(-kMaximumVelocity, velocity.y(), kMaximumVelocity));
-    if (flickable->property("maximumFlickVelocity").toReal() < kMaximumVelocity)
-        flickable->setProperty("maximumFlickVelocity", kMaximumVelocity);
+    m_target = flickable;
+    m_start = QPointF(flickable->property("contentX").toReal(),
+                      flickable->property("contentY").toReal());
+    m_lastSet = m_start;
+    m_velocity = velocity;
+    m_clock.start();
+    m_frame.start();
+}
 
-    // After the Flickable has seen this ScrollEnd itself: it ends its own
-    // wheel movement there, which would stop a flick started first.
-    m_gliding = flickable;
-    QPointer<QQuickItem> target = flickable;
-    QTimer::singleShot(0, flickable, [target, velocity] {
-        if (target)
-            QMetaObject::invokeMethod(target, "flick", Q_ARG(qreal, velocity.x()),
-                                      Q_ARG(qreal, velocity.y()));
-    });
+void KineticScroll::stopGlide()
+{
+    m_frame.stop();
+    m_target = nullptr;
+}
+
+void KineticScroll::step()
+{
+    if (!m_target) {
+        stopGlide();
+        return;
+    }
+    const QPointF current(m_target->property("contentX").toReal(),
+                          m_target->property("contentY").toReal());
+    // Something else moved the view (a new folder, a keypress): let it be.
+    if (std::abs(current.x() - m_lastSet.x()) > 1 || std::abs(current.y() - m_lastSet.y()) > 1) {
+        stopGlide();
+        return;
+    }
+
+    // GTK's deceleration: x(t) = x0 + v/f * (1 - e^(-f t)), v(t) = v e^(-f t).
+    const qreal t = m_clock.nsecsElapsed() / 1e9;
+    const qreal decay = std::exp(-kFriction * t);
+    QPointF target = m_start + m_velocity / kFriction * (1 - decay);
+
+    bool atBound = false;
+    qreal min, max;
+    if (m_velocity.y() != 0) {
+        range(m_target, true, min, max);
+        if (target.y() <= min || target.y() >= max)
+            atBound = true;
+        target.setY(qBound(min, target.y(), max));
+    }
+    if (m_velocity.x() != 0) {
+        range(m_target, false, min, max);
+        if (target.x() <= min || target.x() >= max)
+            atBound = true;
+        target.setX(qBound(min, target.x(), max));
+    }
+
+    if (m_velocity.x() != 0)
+        m_target->setProperty("contentX", target.x());
+    if (m_velocity.y() != 0)
+        m_target->setProperty("contentY", target.y());
+    m_lastSet = QPointF(m_target->property("contentX").toReal(),
+                        m_target->property("contentY").toReal());
+
+    const qreal speed = std::hypot(m_velocity.x(), m_velocity.y()) * decay;
+    if (atBound || speed < kStopVelocity)
+        stopGlide();
 }
