@@ -12,6 +12,7 @@
 #include "ThumbnailProvider.h"
 #include "TestFixture.h"
 
+#include <QPointer>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QGuiApplication>
@@ -153,18 +154,20 @@ static void checkListIconSizing(QQuickWindow *window, QQuickItem *tab,
     const QString path = tree.filePath(names.first());
     QTRY_VERIFY(findItem(tab, "previewPath", path));
     auto *preview = findItem(tab, "previewPath", path);
-    QCOMPARE(preview->width(), 18);
-    QCOMPARE(findFileRow(tab, path)->height(), 30);
+    // This fork draws list icons 15% over the zoom step and pads rows by 20px
+    // (Nautilus sizing), so the expected sizes below are the scaled ones.
+    QCOMPARE(preview->width(), 21);
+    QCOMPARE(findFileRow(tab, path)->height(), 38);
 
     QTest::keyClick(window, Qt::Key_Equal, Qt::ControlModifier);
-    QTRY_COMPARE(preview->width(), 24);
+    QTRY_COMPARE(preview->width(), 28);
     QTest::keyClick(window, Qt::Key_Plus, Qt::ControlModifier);
-    QTRY_COMPARE(preview->width(), 32);
-    QCOMPARE(preview->property("sourceSize").toSize(), QSize(32, 32));
-    QTRY_COMPARE(findFileRow(tab, path)->height(), 44);
+    QTRY_COMPARE(preview->width(), 37);
+    QCOMPARE(preview->property("sourceSize").toSize(), QSize(37, 37));
+    QTRY_COMPARE(findFileRow(tab, path)->height(), 52);
     for (int i = 0; i < 8; ++i)
         QTest::keyClick(window, Qt::Key_Equal, Qt::ControlModifier);
-    QTRY_COMPARE(preview->width(), 64);
+    QTRY_COMPARE(preview->width(), 74);
 
     QList<QQuickItem *> rows;
     for (const QString &name : names) {
@@ -205,7 +208,7 @@ static void checkListIconSizing(QQuickWindow *window, QQuickItem *tab,
     QTRY_VERIFY(smaller->isVisible());
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier,
         smaller->mapToScene(QPointF(smaller->width() / 2, smaller->height() / 2)).toPoint());
-    QTRY_COMPARE(preview->width(), 48);
+    QTRY_COMPARE(preview->width(), 55);
     QTest::keyClick(window, Qt::Key_Escape);
 
     // List and grid sizes survive switching independently.
@@ -217,9 +220,9 @@ static void checkListIconSizing(QQuickWindow *window, QQuickItem *tab,
     QTRY_COMPARE(tab->property("zoom").toInt(), 48);
     for (int i = 0; i < 8; ++i)
         QTest::keyClick(window, Qt::Key_Minus, Qt::ControlModifier);
-    QTRY_COMPARE(findItem(tab, "previewPath", path)->width(), 16);
-    QTest::keyClick(window, Qt::Key_0, Qt::ControlModifier);
     QTRY_COMPARE(findItem(tab, "previewPath", path)->width(), 18);
+    QTest::keyClick(window, Qt::Key_0, Qt::ControlModifier);
+    QTRY_COMPARE(findItem(tab, "previewPath", path)->width(), 21);
     QTest::keyClick(window, Qt::Key_2, Qt::ControlModifier);
     QTRY_COMPARE(tab->property("zoom").toInt(), 80);
 
@@ -502,6 +505,87 @@ static void collectItems(QQuickItem *item, const char *property, const QVariant 
         collectItems(child, property, value, found);
 }
 
+// Disabled menu entries must look disabled: with nothing selected, Cut is
+// off and New Folder is on, and the two must not share a text colour.
+static void checkDisabledMenuItemsDim(QQuickWindow *window, QQuickItem *tab, const QString &folder)
+{
+    QObject *menu = nullptr;
+    for (QObject *child : window->findChildren<QObject *>()) {
+        if (child->objectName() == QLatin1String("contextMenu"))
+            menu = child;
+    }
+    QVERIFY(menu);
+    const QString before = tab->property("path").toString();
+    QVERIFY(QMetaObject::invokeMethod(tab, "navigate", Q_ARG(QVariant, folder)));
+    QTRY_COMPARE(tab->property("path").toString(), folder);
+    QVERIFY(QMetaObject::invokeMethod(tab, "clearSelection"));
+    QVERIFY(QMetaObject::invokeMethod(menu, "popup"));
+    QTRY_VERIFY(menu->property("opened").toBool());
+
+    auto entry = [menu](const QString &text) -> QQuickItem * {
+        const int count = menu->property("count").toInt();
+        for (int i = 0; i < count; ++i) {
+            QQuickItem *item = nullptr;
+            QMetaObject::invokeMethod(menu, "itemAt", Q_RETURN_ARG(QQuickItem *, item), Q_ARG(int, i));
+            if (item && item->property("text").toString() == text)
+                return item;
+        }
+        return nullptr;
+    };
+    QQuickItem *cut = entry(QStringLiteral("Cut"));
+    QQuickItem *newFolder = entry(QStringLiteral("New Folder"));
+    QVERIFY(cut && newFolder);
+    QVERIFY(!cut->isEnabled());
+    QVERIFY(newFolder->isEnabled());
+    auto colour = [](QQuickItem *item) {
+        auto *label = item->property("contentItem").value<QQuickItem *>();
+        return label ? label->property("color").value<QColor>() : QColor();
+    };
+    const QColor on = colour(newFolder);
+    const QColor off = colour(cut);
+    QVERIFY(on.isValid() && off.isValid());
+    QVERIFY2(on != off, qPrintable(off.name()));
+
+    QVERIFY(QMetaObject::invokeMethod(menu, "close"));
+    QTRY_VERIFY(!menu->property("visible").toBool());
+    QVERIFY(QMetaObject::invokeMethod(tab, "navigate", Q_ARG(QVariant, before)));
+    QTRY_COMPARE(tab->property("path").toString(), before);
+}
+
+// GitHub #28: the header's + button asks for a new folder's name, and
+// greys out where New Folder would do nothing (the virtual views).
+static void checkNewFolderButton(QQuickWindow *window, QQuickItem *tab, const QString &folder)
+{
+    auto *button = findItem(window->contentItem(), "objectName", QStringLiteral("newFolderButton"));
+    QVERIFY(button);
+    QObject *prompt = nullptr;
+    for (QObject *child : window->findChildren<QObject *>()) {
+        if (QByteArray(child->metaObject()->className()).startsWith("PromptDialog")
+            && child->property("prompt").toString() == QStringLiteral("Name for the new folder"))
+            prompt = child;
+    }
+    QVERIFY(prompt);
+
+    const QString before = tab->property("path").toString();
+    QVERIFY(QMetaObject::invokeMethod(tab, "navigate", Q_ARG(QVariant, folder)));
+    QTRY_VERIFY(button->isEnabled());
+    const QPointF centre = button->mapToScene(QPointF(button->width() / 2, button->height() / 2));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, centre.toPoint());
+    QTRY_VERIFY(prompt->property("opened").toBool());
+    QCOMPARE(prompt->property("initialText").toString(), QStringLiteral("New Folder"));
+    QTest::keyClick(window, Qt::Key_Escape);
+    QTRY_VERIFY(!prompt->property("visible").toBool());
+
+    QVERIFY(QMetaObject::invokeMethod(tab, "navigate", Q_ARG(QVariant, QStringLiteral("starred:///"))));
+    QTRY_VERIFY(!button->isEnabled());
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, centre.toPoint());
+    QTest::qWait(100);
+    QVERIFY(!prompt->property("visible").toBool());
+
+    QVERIFY(QMetaObject::invokeMethod(tab, "navigate", Q_ARG(QVariant, before)));
+    QTRY_COMPARE(tab->property("path").toString(), before);
+}
+
 // GitHub #10: clicking the path bar's empty space types a path — in a folder
 // and in Starred, where the one crumb leaves the bar nearly all empty.
 static void checkPathBarClickEdits(QQuickWindow *window, QQuickItem *tab, const QString &folder)
@@ -737,6 +821,12 @@ void TestQmlViews::selectionAndVirtualDelegates()
     if (QTest::currentTestFailed())
         return;
     checkPathBarClickEdits(qobject_cast<QQuickWindow *>(window), tab, tree.path());
+    if (QTest::currentTestFailed())
+        return;
+    checkNewFolderButton(qobject_cast<QQuickWindow *>(window), tab, tree.path());
+    if (QTest::currentTestFailed())
+        return;
+    checkDisabledMenuItemsDim(qobject_cast<QQuickWindow *>(window), tab, tree.path());
     if (QTest::currentTestFailed())
         return;
     checkMountQuestion(qobject_cast<QQuickWindow *>(window));
@@ -1300,14 +1390,21 @@ void TestQmlViews::tabCloseButtonClosesTab()
     QTest::keyClick(window, Qt::Key_T, Qt::ControlModifier);
     QTRY_COMPARE(window->property("tabCount").toInt(), 2);
     QTRY_COMPARE((tabs = tabDelegates(window->contentItem())).size(), 2);
-    auto *second = window->property("currentTab").value<QObject *>();
+    // Guarded: if the wrong tab closes, the failure below must report it
+    // rather than read a deleted tab.
+    QPointer<QObject> second = window->property("currentTab").value<QObject *>();
+    // The strip's Row positions a new delegate on its next polish; until then
+    // the old tab can still sit in the new one's slot, and a point taken from
+    // it lands on the other tab once the layout settles.
+    QTRY_VERIFY(tabs.at(0)->x() < tabs.at(1)->x());
     const QPoint label = tabs.at(0)->mapToScene(QPointF(20, tabs.at(0)->height() / 2)).toPoint();
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, label);
     QTRY_VERIFY(window->property("currentTab").value<QObject *>() != second);
     QCOMPARE(window->property("tabCount").toInt(), 2);
     QTest::mouseClick(window, Qt::MiddleButton, Qt::NoModifier, label);
     QTRY_COMPARE(window->property("tabCount").toInt(), 1);
-    QCOMPARE(window->property("currentTab").value<QObject *>(), second);
+    QVERIFY2(second, "the middle-click closed the second tab instead of the first");
+    QCOMPARE(window->property("currentTab").value<QObject *>(), second.data());
 }
 
 // The tab strip's labels, in tab order. A strip delegate is the item with
