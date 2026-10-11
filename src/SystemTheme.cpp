@@ -25,6 +25,9 @@ constexpr const char *kAppearance = "org.freedesktop.appearance";
 
 // The QML draws file names at 13px; that is the size body text is scaled from.
 constexpr qreal kDesignBodyPixels = 13.0;
+// Omanta's text sits this many points above the desktop font (Neil, 2026-10-11:
+// 12 instead of Adwaita Sans 11), so it reads a size larger than GTK apps.
+constexpr qreal kExtraPoints = 1.0;
 
 QDBusMessage readOne(const QString &key)
 {
@@ -103,15 +106,15 @@ qreal SystemTheme::fontScale() const
     // The platform theme hands over the desktop font (Adwaita Sans 11 under
     // GTK) in points; convert at the screen's logical DPI as Qt Quick does.
     const QFont font = QGuiApplication::font();
+    const QScreen *screen = QGuiApplication::primaryScreen();
+    const qreal dpi = screen ? screen->logicalDotsPerInchY() : 96.0;
     qreal pixels = font.pixelSize() > 0 ? font.pixelSize() : 0;
-    if (pixels <= 0 && font.pointSizeF() > 0) {
-        const QScreen *screen = QGuiApplication::primaryScreen();
-        const qreal dpi = screen ? screen->logicalDotsPerInchY() : 96.0;
+    if (pixels <= 0 && font.pointSizeF() > 0)
         pixels = font.pointSizeF() * dpi / 72.0;
-    }
     if (pixels <= 0)
         pixels = kDesignBodyPixels;
-    return pixels / kDesignBodyPixels * m_textScale;
+    pixels += kExtraPoints * dpi / 72.0;
+    return pixels / kDesignBodyPixels * m_textScale * 12.0 / 11.0; // 12pt, not the desktop 11
 }
 
 void SystemTheme::applyColorScheme(uint scheme)
